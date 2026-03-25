@@ -2,34 +2,25 @@ const Post = require("../models/Post");
 
 exports.createPost = async (req, res) => {
   try {
-    // ✅ ADD HERE (VERY FIRST LINES)
-    console.log("BODY:", req.body);
-    console.log("FILE:", req.file);
-
     const text = req.body?.text || "";
 
-    let imageUrl = "";
-    if (req.file) {
-      imageUrl = `/uploads/${req.file.filename}`;
-    }
-
-    if (!text && !imageUrl) {
-      return res.status(400).json({ msg: "Post cannot be empty" });
-    }
+    const image = req.file
+      ? `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`
+      : "";
 
     const post = new Post({
-      userId: req.user.id,
+      user: req.user.id,
       username: req.user.username,
       text,
-      image: imageUrl
+      image
     });
 
     await post.save();
-    res.json(post);
+    res.status(201).json(post);
 
   } catch (err) {
     console.log(err);
-    res.status(500).json({ msg: "Server error" });
+    res.status(500).json({ msg: "Post failed" });
   }
 };
 

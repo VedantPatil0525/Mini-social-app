@@ -11,6 +11,7 @@ const {
 
 // ✅ THIS IS THE MAIN FIX
 router.post("/", auth, upload.single("image"), createPost);
+router.post("/", authMiddleware, upload.single("image"), createPost);
 
 router.get("/", getPosts);
 router.put("/like/:id", auth, likePost);

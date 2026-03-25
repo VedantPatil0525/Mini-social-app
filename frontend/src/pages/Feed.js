@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/api";
 import PostCard from "../components/PostCard";
+const [file, setFile] = useState(null);
 
 const styles = {
   page: {
@@ -215,10 +216,13 @@ export default function Feed() {
   try {
     const formData = new FormData();
     formData.append("text", text);
-    if (image) formData.append("image", image);
+    formData.append("image", file); // file from input
 
     await API.post("/posts", formData, {
-      headers: { Authorization: token },
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: localStorage.getItem("token"),
+      },
     });
 
     setText("");
@@ -238,9 +242,11 @@ export default function Feed() {
 
   return (
     <>
-      <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
       <div style={styles.page}>
-
         {/* Navbar */}
         <nav style={styles.navbar}>
           <div style={styles.navLogo}>
@@ -273,7 +279,6 @@ export default function Feed() {
 
         {/* Main content */}
         <div style={styles.content}>
-
           {/* Composer */}
           <div style={styles.composer}>
             <div style={styles.composerTop}>
@@ -285,11 +290,21 @@ export default function Feed() {
                 value={text}
                 onChange={(e) => setText(e.target.value)}
               />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+              />
             </div>
             <div style={styles.composerDivider} />
             <div style={styles.composerBottom}>
               <label style={styles.fileLabel}>
-                📎 {image ? <span style={styles.fileName}>{image.name}</span> : "Attach image"}
+                📎{" "}
+                {image ? (
+                  <span style={styles.fileName}>{image.name}</span>
+                ) : (
+                  "Attach image"
+                )}
                 <input
                   type="file"
                   accept="image/*"
